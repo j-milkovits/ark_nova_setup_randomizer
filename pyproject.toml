@@ -3,8 +3,12 @@ name = "ark-nova-setup-randomizer"
 version = "0.1.0"
 description = "Simple webtool to randomize the setup of an Ark Nova Game"
 readme = "README.md"
+authors = [
+    { name = "j-milkovits", email = "j.milkovits.t@posteo.net" }
+]
 requires-python = ">=3.12"
 dependencies = [
+    "pandas>=2.3.1",
     "streamlit>=1.47.1",
 ]
 
@@ -14,3 +18,7 @@ dev = [
     "isort>=6.0.1",
     "pre-commit>=4.2.0",
 ]
+
+[build-system]
+requires = ["uv_build>=0.8.3,<0.9.0"]
+build-backend = "uv_build"
