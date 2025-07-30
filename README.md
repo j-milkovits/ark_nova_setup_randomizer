@@ -10,11 +10,11 @@
 - Randomize Bonus Tiles
 - Randomize Base Conservation Project Cards
 - Supports Marine World
-- Dockerized Application for easy deployment
+- Dockerized Application for Easy Deployment
 
 ## Usage
 ### Demo
-You can find a deployed application to use as much as you want at [Link]().
+You can find a deployed application to use as much as you want at [Link](https://ark-nova.jonas-milkovits.com/).
 
 ### Local
 ```bash
