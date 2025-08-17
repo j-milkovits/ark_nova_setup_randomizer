@@ -113,4 +113,4 @@ def pick_project_cards(include_marine: bool, player_count: int) -> list[str]:
     if include_marine:
         default_projects += marine_projects
 
-    return random.sample(default_projects, 4 if player_count >= 3 else 3)
+    return random.sample(default_projects, 4 if player_count > 3 else 3)
