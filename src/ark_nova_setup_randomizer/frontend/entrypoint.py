@@ -2,7 +2,11 @@ import pandas as pd
 import streamlit as st
 
 from ark_nova_setup_randomizer.utils.ark_nova_picks import (
-    pick_bonus_tiles, pick_maps, pick_project_cards, pick_starting_player)
+    pick_bonus_tiles,
+    pick_maps,
+    pick_project_cards,
+    pick_starting_player,
+)
 
 st.set_page_config(
     page_title="Ark Nova - Setup Randomizer",
@@ -23,10 +27,20 @@ PLAYER_COUNT_ARRAY = [2, 3, 4]
 SELECT_BOX_WIDTH_PLAYER_COUNT = 100
 
 # --- state initializations ---
+if "replace_alternative" not in st.session_state:
+    st.session_state.replace_alternative = True
 if "add_alternative" not in st.session_state:
     st.session_state.add_alternative = False
-if "replace_alternative" not in st.session_state:
-    st.session_state.replace_alternative = False
+if "add_map_pack_1" not in st.session_state:
+    st.session_state.add_map_pack_1 = True
+if "add_map_pack_2" not in st.session_state:
+    st.session_state.add_map_pack_2 = True
+if "include_bonus_tiles" not in st.session_state:
+    st.session_state.include_bonus_tiles = True
+if "include_projects" not in st.session_state:
+    st.session_state.include_projects = True
+if "include_marine" not in st.session_state:
+    st.session_state.include_marine = True
 
 
 # --- on_change functions ---
@@ -68,12 +82,6 @@ for idx, player_column in enumerate(player_row):
         )
 
 with st.popover("Settings"):
-    st.number_input(
-        "Number of Maps per Player",
-        min_value=1,
-        value=2,
-        key="maps_per_player",
-    )
     st.checkbox(
         "Replace Default Maps with Alternative Versions",
         key="replace_alternative",
@@ -108,8 +116,21 @@ with st.popover("Settings"):
         disabled=not st.session_state.include_bonus_tiles
         and not st.session_state.include_projects,
     )
+    st.number_input(
+        "Number of Maps per Player",
+        min_value=1,
+        value=2,
+        key="maps_per_player",
+    )
 
-if st.button("Generate Setup"):
+generate_col, randomness_col = st.columns([0.3, 0.7])
+
+with generate_col:
+    generate_button = st.button("Generate Setup")
+with randomness_col:
+    randomness_button = st.button("Randomness Experiment")
+
+if generate_button:
     st.divider()
     starting_player = pick_starting_player(players=players)
     st.subheader("Starting Player")
@@ -150,6 +171,18 @@ if st.button("Generate Setup"):
     if st.session_state.include_projects:
         st.subheader("Picked Projects")
         projects = pick_project_cards(
-            include_marine=st.session_state.include_marine, player_count=len(players)
+            include_marine=st.session_state.include_marine,
+            player_count=len(players),
         )
         st.write("\n".join([f"- {project}" for project in projects]))
+
+if randomness_button:
+    st.divider()
+    st.subheader("Starting Player - Law of Large Numbers")
+    with st.spinner("Generating results..."):
+        results_dict = {}
+        for _ in range(10000):
+            starting_player = pick_starting_player(players=players)
+            results_dict[starting_player] = results_dict.get(starting_player, 0) + 1
+        for key, val in results_dict.items():
+            st.write(f"{key} {val}")
