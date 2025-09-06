@@ -5,7 +5,6 @@ COPY --from=ghcr.io/astral-sh/uv:0.8.3 /uv /uvx /bin/
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
-    software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
