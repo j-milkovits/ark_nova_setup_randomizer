@@ -2,6 +2,26 @@ import random
 import re
 
 
+def parse_exclude_maps(value: str) -> list[str]:
+    if not value.strip():
+        return []
+    token_pattern = re.compile(r"^(?:[1-9]|1[0-4]|[1-8]a)$")
+
+    parts = [p.strip() for p in value.split(",")]
+    result = []
+
+    for p in parts:
+        if not p:
+            continue
+        if not token_pattern.match(p):
+            raise ValueError(
+                f"This map does not exist or the string was not entered correctly (comma-separated!): {p}"
+            )
+        result.append(p)
+
+    return result
+
+
 def pick_maps(
     player_count: int,
     replace_alternative: bool,
@@ -9,6 +29,7 @@ def pick_maps(
     add_map_pack_1: bool,
     add_map_pack_2: bool,
     maps_per_player: int = 2,
+    exclude_maps: list[str] | None = None,
 ) -> list[str]:
     if replace_alternative and add_alternative:
         raise ValueError("replace alternative and add_alternative cannot both be True.")
@@ -57,7 +78,27 @@ def pick_maps(
             "Not enough maps available for the selected player count and maps per player."
         )
 
-    return random.sample(map_pool, player_count * maps_per_player)
+    needed = player_count * maps_per_player
+    if len(map_pool) < needed:
+        raise ValueError(
+            "Not enough maps available for the selected player count and maps per player."
+        )
+
+    def map_id(label: str) -> str:
+        m = re.match(r"^(\d{1,2}a?):", label, flags=re.IGNORECASE)
+        if not m:
+            raise ValueError(f"Unexpected map label format: {label!r}")
+        return m.group(1).lower()
+
+    exclude_set = {e.lower() for e in (exclude_maps or [])}
+    map_pool = [m for m in map_pool if map_id(m) not in exclude_set]
+
+    if len(map_pool) < needed:
+        raise ValueError(
+            "Not enough maps left after exclusions for the selected player count and maps per player."
+        )
+
+    return random.sample(map_pool, needed)
 
 
 def pick_starting_player(players: list[str]) -> str:

@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 
 from ark_nova_setup_randomizer.utils.ark_nova_picks import (
+    parse_exclude_maps,
     pick_bonus_tiles,
     pick_maps,
     pick_project_cards,
@@ -116,6 +117,10 @@ with st.popover("Settings"):
         disabled=not st.session_state.include_bonus_tiles
         and not st.session_state.include_projects,
     )
+    st.text_input(
+        "Exclude Maps (e.g. '10, 13')",
+        key="exclude_maps",
+    )
     st.number_input(
         "Number of Maps per Player",
         min_value=1,
@@ -137,6 +142,13 @@ if generate_button:
     st.write(starting_player)
 
     st.subheader("Picked Maps")
+
+    exclude_maps_arr = []
+    try:
+        exclude_maps_arr = parse_exclude_maps(st.session_state.exclude_maps)
+    except Exception as e:
+        st.error(e)
+
     try:
         picked_maps = pick_maps(
             player_count=st.session_state.player_count,
@@ -145,6 +157,7 @@ if generate_button:
             add_map_pack_1=st.session_state.add_map_pack_1,
             add_map_pack_2=st.session_state.add_map_pack_2,
             maps_per_player=st.session_state.maps_per_player,
+            exclude_maps=exclude_maps_arr,
         )
         map_df = pd.DataFrame(
             {
